@@ -134,11 +134,26 @@ if [ "${LUMINARIS_SKIP_INSTALL:-0}" != "1" ]; then
     run rm -rf node_modules package-lock.json bun.lockb "$HOME/.npm/_cacache" "$HOME/.bun/install/cache"
   fi
 
+  # npm 12+ memblokir dependency git (EALLOWGIT) dan lifecycle script secara default.
+  # --allow-git=root hanya mengizinkan git dep di package.json root; flag script
+  # mengembalikan perilaku npm <=11 agar canvas/esbuild/baileys bisa build.
+  npm_major=$(npm --version | cut -d. -f1)
+  npm_install() {
+    if [ "$npm_major" -ge 12 ] 2>/dev/null; then
+      run npm install --no-audit --no-fund --allow-git=root --dangerously-allow-all-scripts "$@"
+    else
+      run npm install --no-audit --no-fund "$@"
+    fi
+  }
+  if [ "$npm_major" -ge 12 ] 2>/dev/null; then
+    line "npm $npm_major: mengizinkan git dependency root dan install scripts"
+  fi
+
   say "npm install (bisa beberapa menit)..."
-  run npm install --no-audit --no-fund
+  npm_install
   if is_termux; then
     say "Menambahkan sharp untuk Termux..."
-    run npm install --no-audit --no-fund @img/sharp-wasm32
+    npm_install @img/sharp-wasm32
   fi
   ok "Dependensi terpasang"
 else

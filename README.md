@@ -128,6 +128,8 @@ cd <folder-rilis>
 npm install
 ```
 
+> npm 12+ memblokir dependency git (`EALLOWGIT`) dan lifecycle script secara default. Paket ini memakai `@laminaris/baileys` dari GitHub dan butuh build `canvas`/`esbuild`/`sharp`, jadi gunakan `npm install --allow-git=root --dangerously-allow-all-scripts`.
+
 Atau dengan Bun:
 
 ```bash
