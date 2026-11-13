@@ -89,7 +89,7 @@ Installer akan:
 3. mengekstrak ke `~/LuminarisMD`,
 4. memasang dependensi (`npm install`).
 
-Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`) ikut dipasang otomatis.
+Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`, `build-essential`, `pkg-config`) ikut dipasang otomatis, dan paket yang sudah ada di-upgrade agar libc++ tetap cocok dengan Node.js.
 
 Setiap langkah ditampilkan di terminal sekaligus disimpan ke `~/luminaris.install.log` — kirim file itu kalau instalasi gagal.
 

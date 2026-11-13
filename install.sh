@@ -28,7 +28,7 @@ fail() { line "✗ $*"; line ""; line "Log lengkap: $LOG"; exit 1; }
 run() {
   status_file="$TMP/.status"
   rm -f "$status_file"
-  { set +e; "$@" 2>&1; printf '%s' "$?" >"$status_file"; } | tee -a "$LOG"
+  { set +e; "$@" 2>&1 </dev/null; printf '%s' "$?" >"$status_file"; } | tee -a "$LOG"
   [ -f "$status_file" ] || fail "Gagal menjalankan: $*"
   [ "$(cat "$status_file")" -eq 0 ] || fail "Gagal menjalankan: $*"
 }
@@ -57,10 +57,12 @@ step "[1/5] Memeriksa sistem"
 if is_termux; then
   line "Lingkungan: Termux"
   if [ "${LUMINARIS_SKIP_DEPS:-0}" != "1" ]; then
-    say "Memperbarui paket Termux..."
+    say "Memperbarui repositori Termux..."
     run pkg update -y
-    say "Memasang nodejs-lts, git, unzip, python, libvips..."
-    run pkg install -y nodejs-lts git unzip python libvips
+    say "Meng-upgrade paket Termux (wajib: libc++ harus sama versi dengan Node.js)..."
+    run pkg upgrade -y
+    say "Memasang nodejs-lts, git, unzip, python, build-essential, pkg-config, libvips..."
+    run pkg install -y nodejs-lts git unzip python build-essential pkg-config libvips
     ok "Paket sistem siap"
   else
     line "Install paket sistem dilewati (LUMINARIS_SKIP_DEPS=1)"
@@ -80,6 +82,9 @@ need unzip || fail "unzip belum terpasang."
 
 # ── 2. Versi Node ───────────────────────────────────────────────────
 step "[2/5] Memeriksa Node.js"
+if ! node -v >/dev/null 2>&1; then
+  fail "Node.js tidak bisa dijalankan (libc++ mungkin usang). Di Termux jalankan: pkg upgrade -y && pkg install --reinstall libc++ nodejs-lts"
+fi
 major=$(node -p "process.versions.node.split('.')[0]")
 minor=$(node -p "process.versions.node.split('.')[1]")
 line "Node.js: $(node -v)  (butuh >= 22.13.0)"
@@ -118,6 +123,17 @@ ok "Paket diekstrak ke $DEST"
 step "[5/5] Memasang dependensi"
 cd "$DEST"
 if [ "${LUMINARIS_SKIP_INSTALL:-0}" != "1" ]; then
+  if is_termux; then
+    say "Menyiapkan toolchain build Termux..."
+    if need python; then export PYTHON="$(command -v python)"; fi
+    if need clang; then export CC="$(command -v clang)"; fi
+    if need clang++; then export CXX="$(command -v clang++)"; fi
+    line "  PYTHON=${PYTHON:-?}  CC=${CC:-?}  CXX=${CXX:-?}"
+
+    say "Membersihkan cache dan artefak lama..."
+    run rm -rf node_modules package-lock.json bun.lockb "$HOME/.npm/_cacache" "$HOME/.bun/install/cache"
+  fi
+
   say "npm install (bisa beberapa menit)..."
   run npm install --no-audit --no-fund
   if is_termux; then
