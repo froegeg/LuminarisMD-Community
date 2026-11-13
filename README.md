@@ -20,7 +20,8 @@
 <p align="center">
   <a href="#sorotan">Sorotan</a> ·
   <a href="#kebutuhan">Kebutuhan</a> ·
-  <a href="#mulai-cepat">Mulai cepat</a> ·
+  <a href="#instalasi-cepat">Instalasi cepat</a> ·
+  <a href="#instalasi-manual">Instalasi manual</a> ·
   <a href="#konfigurasi">Konfigurasi</a> ·
   <a href="#perintah">Perintah</a> ·
   <a href="#sesi--data">Sesi & data</a> ·
@@ -73,7 +74,42 @@ winget install Gyan.FFmpeg
 
 ---
 
-## Mulai cepat
+## Instalasi cepat
+
+Satu perintah (Linux, macOS, WSL, dan Termux):
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | sh
+```
+
+Installer akan:
+
+1. memeriksa Node.js (`>= 22.13`) dan dependensi dasar,
+2. mengunduh paket rilis terbaru (`LuminarisMD.zip`),
+3. mengekstrak ke `~/LuminarisMD`,
+4. memasang dependensi (`npm install`).
+
+Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`) ikut dipasang otomatis.
+
+Opsi:
+
+| Env | Default | Fungsi |
+| :--- | :--- | :--- |
+| `LUMINARIS_DIR` | `~/LuminarisMD` | Folder tujuan instalasi. |
+| `LUMINARIS_SKIP_DEPS` | `0` | `1` = lewati instalasi paket sistem (Termux). |
+| `LUMINARIS_SKIP_INSTALL` | `0` | `1` = lewati `npm install`. |
+
+Contoh memasang ke folder lain:
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | LUMINARIS_DIR=/opt/luminaris sh
+```
+
+Setelah selesai, lanjut ke [Konfigurasi](#konfigurasi).
+
+---
+
+## Instalasi manual
 
 ### 1. Siapkan paket
 
