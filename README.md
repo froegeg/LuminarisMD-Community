@@ -91,11 +91,14 @@ Installer akan:
 
 Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`) ikut dipasang otomatis.
 
+Setiap langkah ditampilkan di terminal sekaligus disimpan ke `~/luminaris.install.log` — kirim file itu kalau instalasi gagal.
+
 Opsi:
 
 | Env | Default | Fungsi |
 | :--- | :--- | :--- |
 | `LUMINARIS_DIR` | `~/LuminarisMD` | Folder tujuan instalasi. |
+| `LUMINARIS_LOG` | `~/luminaris.install.log` | Lokasi log instalasi. |
 | `LUMINARIS_SKIP_DEPS` | `0` | `1` = lewati instalasi paket sistem (Termux). |
 | `LUMINARIS_SKIP_INSTALL` | `0` | `1` = lewati `npm install`. |
 
