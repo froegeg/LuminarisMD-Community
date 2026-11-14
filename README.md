@@ -89,9 +89,9 @@ Installer akan:
 3. mengekstrak ke `~/LuminarisMD` (mode update jika folder sudah ada),
 4. memasang dependensi (`npm install`).
 
-Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`, `build-essential`, `pkg-config`) ikut dipasang otomatis, dan paket yang sudah ada di-upgrade agar libc++ tetap cocok dengan Node.js.
+Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`, `build-essential`, `pkg-config`, `ffmpeg`) ikut dipasang otomatis, dan paket yang sudah ada di-upgrade agar libc++ tetap cocok dengan Node.js.
 
-Setiap langkah ditampilkan di terminal sekaligus disimpan ke `~/luminaris.install.log` — kirim file itu kalau instalasi gagal.
+Installer menampilkan progress bar persen, langkah bernomor, warna, dan ringkasan akhir. Lebar bar mengikuti ukuran terminal dan dihitung ulang saat terminal di-resize. Semua langkah ditampilkan di terminal sekaligus disimpan ke `~/luminaris.install.log` — kirim file itu kalau instalasi gagal.
 
 Opsi:
 
@@ -99,8 +99,13 @@ Opsi:
 | :--- | :--- | :--- |
 | `LUMINARIS_DIR` | `~/LuminarisMD` | Folder tujuan instalasi. |
 | `LUMINARIS_LOG` | `~/luminaris.install.log` | Lokasi log instalasi. |
+| `LUMINARIS_VERSION` | `v2.2.6` | Versi yang ditampilkan di header. |
+| `LUMINARIS_ZIP_URL` | rilis GitHub | URL paket alternatif (mis. mirror internal). |
+| `LUMINARIS_ZIP_SHA256` | dari GitHub API | Checksum SHA-256 untuk paket alternatif. |
 | `LUMINARIS_SKIP_DEPS` | `0` | `1` = lewati instalasi paket sistem (Termux). |
 | `LUMINARIS_SKIP_INSTALL` | `0` | `1` = lewati `npm install`. |
+
+Jika `release-assets.githubusercontent.com` diblokir, installer otomatis mencoba mirror `gh-proxy.com` dan `ghfast.top`. Checksum dari GitHub API tetap diverifikasi setelah unduhan.
 
 Contoh memasang ke folder lain:
 
