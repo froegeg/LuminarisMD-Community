@@ -77,7 +77,7 @@ winget install Gyan.FFmpeg
 ## Instalasi cepat
 
 <p align="center">
-  <img src="assets/install-neon.svg" alt="LuminarisMD quick install — copy, paste, enter" width="900">
+  <img src="assets/neon-frame.webp" alt="" width="880">
 </p>
 
 Satu perintah (Linux, macOS, WSL, dan Termux) — **copy, tempel di terminal, lalu Enter**:
@@ -85,6 +85,10 @@ Satu perintah (Linux, macOS, WSL, dan Termux) — **copy, tempel di terminal, la
 ```bash
 curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | sh
 ```
+
+<p align="center">
+  <img src="assets/neon-frame.webp" alt="" width="880">
+</p>
 
 > Klik ikon **copy** di kanan blok kode, tempel di terminal, lalu tekan **Enter**.
 
