@@ -11,6 +11,7 @@
 #   LUMINARIS_SKIP_INSTALL=1               lewati npm install
 #   LUMINARIS_ZIP_URL=<url>                paket rilis alternatif
 #   LUMINARIS_ZIP_SHA256=<hex>             checksum paket alternatif
+#   LUMINARIS_OPEN_SHELL=1                 buka shell di folder instalasi setelah selesai
 
 set -eu
 
@@ -685,3 +686,35 @@ fi
 
 finish
 tidy_log
+
+# Installer berjalan di proses terpisah saat dipanggil via `curl | sh`, jadi
+# `cd` di sini tidak bisa memindahkan folder shell pemanggil. Quick install di
+# README memakai `... | sh && cd ~/LuminarisMD`; untuk masuk otomatis lewat
+# script ini, set LUMINARIS_OPEN_SHELL=1 (butuh terminal/TTY).
+cd "$DEST" 2>/dev/null || true
+
+if [ "${LUMINARIS_OPEN_SHELL:-0}" = "1" ]; then
+  # test -r/-w pada /dev/tty tetap true walau proses tidak punya controlling
+  # terminal, jadi coba buka file descriptor-nya langsung.
+  if (exec 3</dev/tty) 2>/dev/null && (exec 3>/dev/tty) 2>/dev/null; then
+    shell_bin="${SHELL:-sh}"
+    case "$shell_bin" in
+      /*)
+        if [ ! -f "$shell_bin" ] || [ ! -x "$shell_bin" ]; then
+          shell_bin=sh
+        fi
+        ;;
+      *)
+        shell_bin=$(command -v "$shell_bin" 2>/dev/null || printf 'sh')
+        ;;
+    esac
+    printf '\n  %sMembuka shell di %s%s\n' "$C_D" "$DEST" "$C_R"
+    log "Membuka shell di $DEST"
+    cleanup
+    trap - EXIT INT TERM
+    cd "$DEST" || exit 1
+    "$shell_bin" -i </dev/tty >/dev/tty 2>&1 || true
+  else
+    warn "LUMINARIS_OPEN_SHELL=1 tetapi /dev/tty tidak tersedia"
+  fi
+fi

@@ -80,10 +80,10 @@ winget install Gyan.FFmpeg
   <img src="assets/neon-frame.webp" alt="" width="880">
 </p>
 
-Satu perintah (Linux, macOS, WSL, dan Termux) — **copy, tempel di terminal, lalu Enter**:
+Satu perintah (Linux, macOS, WSL, dan Termux) — **copy, tempel di terminal, lalu Enter**. Setelah selesai, shell otomatis masuk ke `~/LuminarisMD`:
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | sh && cd ~/LuminarisMD
 ```
 
 <p align="center">
@@ -114,13 +114,17 @@ Opsi:
 | `LUMINARIS_ZIP_SHA256` | dari GitHub API | Checksum SHA-256 untuk paket alternatif. |
 | `LUMINARIS_SKIP_DEPS` | `0` | `1` = lewati instalasi paket sistem (Termux). |
 | `LUMINARIS_SKIP_INSTALL` | `0` | `1` = lewati `npm install`. |
+| `LUMINARIS_OPEN_SHELL` | `0` | `1` = buka shell baru di folder instalasi setelah selesai (butuh terminal). |
+
+Installer berjalan di proses terpisah saat dipanggil lewat `curl | sh`, jadi `cd` di dalam script tidak bisa memindahkan folder shell Anda. Bagian `&& cd ~/LuminarisMD` pada perintah di atas yang melakukannya setelah instalasi selesai.
 
 Jika `release-assets.githubusercontent.com` diblokir, installer otomatis mencoba mirror `gh-proxy.com` dan `ghfast.top`. Checksum dari GitHub API tetap diverifikasi setelah unduhan.
 
 Contoh memasang ke folder lain:
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | LUMINARIS_DIR=/opt/luminaris sh
+export LUMINARIS_DIR="$HOME/LuminarisMD-custom"
+curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/install.sh | sh && cd "$LUMINARIS_DIR"
 ```
 
 Setelah selesai, lanjut ke [Konfigurasi](#konfigurasi).
