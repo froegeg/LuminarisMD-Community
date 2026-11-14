@@ -67,10 +67,15 @@ if is_termux; then
   if [ "${LUMINARIS_SKIP_DEPS:-0}" != "1" ]; then
     say "Memperbarui repositori Termux..."
     run pkg update -y
+    if need dpkg; then
+      say "Menyelesaikan konfigurasi paket yang tertunda..."
+      run dpkg --force-confold --configure -a
+    fi
     say "Meng-upgrade paket Termux (wajib: libc++ harus sama versi dengan Node.js)..."
-    run pkg upgrade -y
+    # --force-confold: jangan berhenti di prompt conffile saat script dijalankan via curl | sh.
+    run pkg upgrade -y -o Dpkg::Options::=--force-confold
     say "Memasang nodejs-lts, git, unzip, python, build-essential, pkg-config, libvips..."
-    run pkg install -y nodejs-lts git unzip python build-essential pkg-config libvips
+    run pkg install -y -o Dpkg::Options::=--force-confold nodejs-lts git unzip python build-essential pkg-config libvips
     ok "Paket sistem siap"
   else
     line "Install paket sistem dilewati (LUMINARIS_SKIP_DEPS=1)"
