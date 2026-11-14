@@ -16,13 +16,21 @@ ZIP_URL="https://github.com/$REPO/releases/latest/download/LuminarisMD.zip"
 DEST="${LUMINARIS_DIR:-$HOME/LuminarisMD}"
 LOG="${LUMINARIS_LOG:-$HOME/luminaris.install.log}"
 TMP=""
+UPDATE=0
+BACKUP=""
 
 # ── Logging: tampil di terminal + simpan ke file ────────────────────
 line() { printf '%s\n' "$*" | tee -a "$LOG"; }
 step() { line ""; line "── $* ─────────────────────────────"; }
 say()  { line "▸ $*"; }
 ok()   { line "✓ $*"; }
-fail() { line "✗ $*"; line ""; line "Log lengkap: $LOG"; exit 1; }
+fail() {
+  line "✗ $*"
+  [ -n "${BACKUP:-}" ] && line "Backup lama: $BACKUP"
+  line ""
+  line "Log lengkap: $LOG"
+  exit 1
+}
 
 # Jalankan perintah sambil streaming output ke terminal dan log.
 run() {
@@ -95,11 +103,29 @@ ok "Versi Node.js memenuhi syarat"
 
 # ── 3. Folder tujuan ────────────────────────────────────────────────
 step "[3/5] Menyiapkan folder tujuan"
-if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then
-  fail "$DEST sudah ada dan tidak kosong. Set LUMINARIS_DIR=/path/lain."
+case "$DEST" in
+  ""|"/"|"$HOME"|"$HOME/") fail "LUMINARIS_DIR tidak valid: $DEST" ;;
+esac
+case "/$DEST/" in
+  */../*|*/./*) fail "LUMINARIS_DIR tidak boleh mengandung '.' atau '..': $DEST" ;;
+esac
+if [ -e "$DEST" ] && [ ! -d "$DEST" ]; then
+  fail "$DEST ada tetapi bukan folder."
 fi
-mkdir -p "$DEST"
-ok "Folder: $DEST"
+
+if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then
+  UPDATE=1
+  BACKUP="${DEST}.backup-$(date '+%Y%m%d-%H%M%S')-$$"
+  say "Folder sudah ada — mode update"
+  line "  Pastikan bot sudah berhenti sebelum update."
+  say "Folder lama dipindahkan ke: $BACKUP"
+  mv "$DEST" "$BACKUP" || fail "Gagal memindahkan folder lama ke backup."
+  mkdir -p "$DEST" || fail "Gagal membuat folder: $DEST"
+  ok "Folder baru: $DEST (data lama aman di backup)"
+else
+  mkdir -p "$DEST" || fail "Gagal membuat folder: $DEST"
+  ok "Folder: $DEST"
+fi
 
 # ── 4. Unduh & ekstrak rilis terbaru ────────────────────────────────
 step "[4/5] Mengunduh dan mengekstrak paket"
@@ -116,7 +142,29 @@ set -- "$SRC"/*
 if [ "$#" -eq 1 ] && [ -d "$1" ]; then SRC="$1"; fi
 [ -f "$SRC/package.json" ] || fail "Isi ZIP tidak valid (package.json tidak ditemukan)."
 
-cp -R "$SRC"/. "$DEST"/
+cp -R "$SRC"/. "$DEST"/ || fail "Gagal menyalin paket ke $DEST."
+
+if [ "$UPDATE" = "1" ]; then
+  say "Memulihkan data pengguna dari backup..."
+  if [ -f "$BACKUP/config.js" ]; then
+    if ! cmp -s "$BACKUP/config.js" "$DEST/config.js"; then
+      cp -p "$DEST/config.js" "$DEST/config.new.js" || fail "Gagal menyimpan config default baru."
+      line "  config.js lama dipertahankan; default baru: config.new.js"
+    else
+      line "  config.js lama dipertahankan"
+    fi
+    cp -p "$BACKUP/config.js" "$DEST/config.js" || fail "Gagal memulihkan config.js."
+  fi
+  for p in .env session data logs; do
+    if [ -e "$BACKUP/$p" ]; then
+      rm -rf "$DEST/$p"
+      cp -Rp "$BACKUP/$p" "$DEST/$p" || fail "Gagal memulihkan $p dari backup."
+      line "  $p dipertahankan"
+    fi
+  done
+  ok "Data pengguna dipulihkan"
+fi
+
 ok "Paket diekstrak ke $DEST"
 
 # ── 5. Dependensi npm ───────────────────────────────────────────────
@@ -163,6 +211,12 @@ fi
 line ""
 tidy_log
 ok "Instalasi selesai — log: $LOG"
+if [ "$UPDATE" = "1" ]; then
+  line ""
+  line "Mode update: kode diganti; config.js, .env, session/, data/, logs/ dipertahankan."
+  line "Backup lama: $BACKUP"
+  line "Hapus backup setelah bot berjalan normal: rm -rf \"$BACKUP\""
+fi
 cat <<EOF
 
 Langkah berikutnya:

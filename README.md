@@ -86,7 +86,7 @@ Installer akan:
 
 1. memeriksa Node.js (`>= 22.13`) dan dependensi dasar,
 2. mengunduh paket rilis terbaru (`LuminarisMD.zip`),
-3. mengekstrak ke `~/LuminarisMD`,
+3. mengekstrak ke `~/LuminarisMD` (mode update jika folder sudah ada),
 4. memasang dependensi (`npm install`).
 
 Di Termux, paket sistem (`nodejs-lts`, `unzip`, `libvips`, `python`, `git`, `build-essential`, `pkg-config`) ikut dipasang otomatis, dan paket yang sudah ada di-upgrade agar libc++ tetap cocok dengan Node.js.
@@ -109,6 +109,19 @@ curl -LsSf https://raw.githubusercontent.com/froegeg/LuminarisMD-Community/main/
 ```
 
 Setelah selesai, lanjut ke [Konfigurasi](#konfigurasi).
+
+### Update instalasi yang sudah ada
+
+Jalankan perintah installer yang sama. Jika folder tujuan sudah ada dan tidak kosong, installer otomatis masuk mode update:
+
+1. folder lama dipindahkan ke `<folder>.backup-<timestamp>`,
+2. kode dari rilis terbaru diekstrak,
+3. `config.js`, `.env`, `session/`, `data/`, dan `logs/` dipulihkan,
+4. dependensi dipasang ulang.
+
+Jika `config.js` lama berbeda dari default rilis baru, default baru disimpan sebagai `config.new.js` untuk dibandingkan. `node_modules` dan `package.json` mengikuti rilis baru (tidak dipertahankan).
+
+> Hentikan bot sebelum update. Backup menyimpan `session/` — perlakukan seperti password dan hapus setelah bot berjalan normal.
 
 ---
 
